@@ -30,7 +30,7 @@ async function startServer() {
             role: 'user',
             parts: [
               {
-                text: 'Analyze the food in this image. Provide the name of the dish, estimated calories, protein (in grams), carbs (in grams), fat (in grams), and a short description. If the image does not seem to contain food, return "calories": 0, "foodName": "Not Food", and provide a relevant description.',
+                text: 'Analyze the food in this image with high precision. 1. Identify all food components. 2. Estimate the realistic portion size and weight for each item by comparing it to standard typical serving sizes (e.g., a standard burger is ~200-250g, a standard cutlet is ~100-150g). 3. Calculate the total calories, protein, carbs, and fat based on standard verified nutritional database values for these specific estimated weights. 4. Ensure the total calories mathematically match the macronutrients closely (Protein: 4 kcal/g, Carbs: 4 kcal/g, Fat: 9 kcal/g). 5. Provide the name of the dish and a short description that mentions the estimated weight. If the image does not seem to contain food, return "calories": 0, "foodName": "Не еда", and provide a relevant description. All text responses (foodName, description) MUST be in Russian language.',
               },
               {
                 inlineData: {
@@ -42,6 +42,7 @@ async function startServer() {
           },
         ],
         config: {
+          temperature: 0,
           responseMimeType: 'application/json',
           responseSchema: {
             type: Type.OBJECT,
@@ -68,7 +69,16 @@ async function startServer() {
 
     } catch (error: any) {
       console.error('Error analyzing image:', error);
-      res.status(500).json({ error: error.message || 'Internal server error' });
+      
+      let errorMessage = error.message || 'Внутренняя ошибка сервера';
+      let statusCode = 500;
+      
+      if (error.status === 429 || (error.message && (error.message.includes('429') || error.message.includes('Quota')))) {
+        errorMessage = 'Превышен бесплатный лимит запросов (5 в минуту). Пожалуйста, подождите минуту и попробуйте снова.';
+        statusCode = 429;
+      }
+      
+      res.status(statusCode).json({ error: errorMessage });
     }
   });
 

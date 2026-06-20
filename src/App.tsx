@@ -39,7 +39,7 @@ export default function App() {
           <div className="w-8 h-8 bg-emerald-400 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(52,211,153,0.4)]">
             <div className="w-4 h-4 border-2 border-slate-900"></div>
           </div>
-          <span className="font-bold text-xl tracking-tight">NUTRI<span className="text-emerald-400">SCAN</span> AI</span>
+          <span className="font-bold text-xl tracking-tight">НУТРИ<span className="text-emerald-400">СКАН</span> ИИ</span>
         </div>
       </header>
 
@@ -78,7 +78,7 @@ export default function App() {
             }`}
           >
             <Camera className="w-6 h-6" />
-            Analyze
+            Скан
           </button>
           <button
             onClick={() => setActiveTab('diary')}
@@ -87,7 +87,7 @@ export default function App() {
             }`}
           >
             <Book className="w-6 h-6" />
-            Diary
+            Дневник
           </button>
         </div>
       </nav>
@@ -137,13 +137,18 @@ function UploadTab({ onAddEntry }: { onAddEntry: (e: DiaryEntry) => void }) {
       });
 
       if (!response.ok) {
-        throw new Error('Analysis failed');
+        let errMessage = 'Не удалось выполнить анализ';
+        try {
+          const errData = await response.json();
+          if (errData.error) errMessage = errData.error;
+        } catch (_) {}
+        throw new Error(errMessage);
       }
 
       const data: NutritionalInfo = await response.json();
       setResult(data);
     } catch (err: any) {
-      setError(err.message || 'An error occurred during analysis.');
+      setError(err.message || 'Произошла ошибка во время анализа.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -183,7 +188,7 @@ function UploadTab({ onAddEntry }: { onAddEntry: (e: DiaryEntry) => void }) {
             <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 ring-8 ring-white/5">
                <Upload className="w-8 h-8 text-emerald-400" />
             </div>
-            <span className="text-sm font-medium text-slate-300">Tap to upload a photo of your food</span>
+            <span className="text-sm font-medium text-slate-300">Нажмите, чтобы загрузить фото блюда</span>
             <span className="text-xs text-slate-500 mt-2">JPEG, PNG, WEBP</span>
             <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
           </label>
@@ -198,10 +203,10 @@ function UploadTab({ onAddEntry }: { onAddEntry: (e: DiaryEntry) => void }) {
              {isAnalyzing ? (
                <>
                  <Loader2 className="w-5 h-5 animate-spin" />
-                 Analyzing...
+                 Анализ...
                </>
              ) : (
-               'Analyze Food'
+               'Анализировать фото'
              )}
            </button>
            {error && (
@@ -221,7 +226,7 @@ function UploadTab({ onAddEntry }: { onAddEntry: (e: DiaryEntry) => void }) {
             className="bg-emerald-500/10 backdrop-blur-xl border border-emerald-500/20 rounded-3xl p-6 shadow-lg space-y-5"
           >
             <div>
-              <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Analysis Complete</span>
+              <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Анализ завершен</span>
               <h2 className="text-xl font-bold text-white mt-1">{result.foodName}</h2>
               <p className="text-sm text-slate-400 mt-2">{result.description}</p>
             </div>
@@ -229,25 +234,25 @@ function UploadTab({ onAddEntry }: { onAddEntry: (e: DiaryEntry) => void }) {
             <div className="grid grid-cols-4 gap-3">
               <div className="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center justify-center text-center">
                 <span className="text-xl font-bold text-emerald-400">{result.calories}</span>
-                <span className="text-[10px] text-slate-400 uppercase">kcal</span>
+                <span className="text-[10px] text-slate-400 uppercase">ккал</span>
               </div>
               <div className="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center justify-center text-center">
-                <span className="text-lg font-bold text-white">{result.protein}g</span>
-                <span className="text-[10px] text-slate-400 uppercase">Protein</span>
+                <span className="text-lg font-bold text-white">{result.protein}г</span>
+                <span className="text-[10px] text-slate-400 uppercase">Белки</span>
               </div>
               <div className="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center justify-center text-center">
-                <span className="text-lg font-bold text-white">{result.carbs}g</span>
-                <span className="text-[10px] text-slate-400 uppercase">Carbs</span>
+                <span className="text-lg font-bold text-white">{result.carbs}г</span>
+                <span className="text-[10px] text-slate-400 uppercase">Углеводы</span>
               </div>
               <div className="bg-white/5 rounded-xl p-2 border border-white/5 flex flex-col items-center justify-center text-center">
-                <span className="text-lg font-bold text-white">{result.fat}g</span>
-                <span className="text-[10px] text-slate-400 uppercase">Fat</span>
+                <span className="text-lg font-bold text-white">{result.fat}г</span>
+                <span className="text-[10px] text-slate-400 uppercase">Жиры</span>
               </div>
             </div>
 
             <button
               onClick={addToDiary}
-              disabled={addedToggle || result.foodName === 'Not Food'}
+              disabled={addedToggle || result.foodName === 'Не еда' || result.foodName === 'Not Food'}
               className={`w-full py-3 px-4 rounded-xl font-bold transition flex items-center justify-center gap-2 border ${
                 addedToggle
                   ? 'bg-white/5 border-white/5 text-slate-500 cursor-default'
@@ -257,12 +262,12 @@ function UploadTab({ onAddEntry }: { onAddEntry: (e: DiaryEntry) => void }) {
               {addedToggle ? (
                 <>
                   <CheckCircle className="w-5 h-5" />
-                  Added to Diary
+                  В дневнике
                 </>
               ) : (
                 <>
                   <PlusCircle className="w-5 h-5" />
-                  Add to Food Diary
+                  В дневник
                 </>
               )}
             </button>
@@ -295,8 +300,8 @@ function DiaryTab({ entries, setEntries }: { entries: DiaryEntry[], setEntries: 
   const isToday = selectedDate === todayStr;
 
   const displayDate = isToday 
-    ? 'Today' 
-    : new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(currentDateObj);
+    ? 'Сегодня' 
+    : new Intl.DateTimeFormat('ru-RU', { weekday: 'short', month: 'short', day: 'numeric' }).format(currentDateObj);
 
   const daysEntries = entries.filter(e => e.date === selectedDate).sort((a, b) => b.timestamp - a.timestamp);
 
@@ -327,7 +332,7 @@ function DiaryTab({ entries, setEntries }: { entries: DiaryEntry[], setEntries: 
       </div>
 
       <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-lg relative z-10">
-        <h3 className="text-lg font-semibold mb-4 text-white">Today's Progress</h3>
+        <h3 className="text-lg font-semibold mb-4 text-white">Прогресс за день</h3>
         
         <div className="flex items-center justify-between mb-6">
            <div className="relative w-28 h-28 flex items-center justify-center">
@@ -337,14 +342,14 @@ function DiaryTab({ entries, setEntries }: { entries: DiaryEntry[], setEntries: 
               </svg>
               <div className="absolute flex flex-col items-center">
                 <span className="text-2xl font-bold text-white">{Math.round((summary.calories / 2000) * 100)}%</span>
-                <span className="text-[10px] text-slate-400 uppercase">Goal</span>
+                <span className="text-[10px] text-slate-400 uppercase">Цель</span>
               </div>
            </div>
            <div className="flex-1 pl-8">
               <div className="mb-3">
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-400">Consumed</span>
-                  <span className="font-bold text-white">{summary.calories} kcal</span>
+                  <span className="text-slate-400">Съедено</span>
+                  <span className="font-bold text-white">{summary.calories} ккал</span>
                 </div>
                 <div className="w-full bg-white/5 h-1.5 rounded-full">
                   <div className="bg-indigo-400 h-1.5 rounded-full" style={{ width: `${Math.min((summary.calories / 2000) * 100, 100)}%` }}></div>
@@ -352,8 +357,8 @@ function DiaryTab({ entries, setEntries }: { entries: DiaryEntry[], setEntries: 
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-400">Goal</span>
-                  <span className="font-bold text-emerald-400">2,000 kcal</span>
+                  <span className="text-slate-400">Лимит</span>
+                  <span className="font-bold text-emerald-400">2 000 ккал</span>
                 </div>
               </div>
            </div>
@@ -361,22 +366,22 @@ function DiaryTab({ entries, setEntries }: { entries: DiaryEntry[], setEntries: 
 
         <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-             <div className="text-[10px] text-slate-400 uppercase mb-1">Protein</div>
-             <div className="font-bold text-white">{summary.protein}g</div>
+             <div className="text-[10px] text-slate-400 uppercase mb-1">Белки</div>
+             <div className="font-bold text-white">{summary.protein}г</div>
              <div className="w-full h-1 bg-white/10 rounded-full mt-2">
                <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${Math.min((summary.protein / 50) * 100, 100)}%` }} />
              </div>
            </div>
            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-             <div className="text-[10px] text-slate-400 uppercase mb-1">Carbs</div>
-             <div className="font-bold text-white">{summary.carbs}g</div>
+             <div className="text-[10px] text-slate-400 uppercase mb-1">Углеводы</div>
+             <div className="font-bold text-white">{summary.carbs}г</div>
              <div className="w-full h-1 bg-white/10 rounded-full mt-2">
                <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${Math.min((summary.carbs / 250) * 100, 100)}%` }} />
              </div>
            </div>
            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-             <div className="text-[10px] text-slate-400 uppercase mb-1">Fat</div>
-             <div className="font-bold text-white">{summary.fat}g</div>
+             <div className="text-[10px] text-slate-400 uppercase mb-1">Жиры</div>
+             <div className="font-bold text-white">{summary.fat}г</div>
              <div className="w-full h-1 bg-white/10 rounded-full mt-2">
                <div className="h-full bg-slate-400 rounded-full" style={{ width: `${Math.min((summary.fat / 70) * 100, 100)}%` }} />
              </div>
@@ -385,11 +390,11 @@ function DiaryTab({ entries, setEntries }: { entries: DiaryEntry[], setEntries: 
       </div>
 
       <div className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col shadow-lg relative z-10">
-        <h3 className="text-lg font-semibold mb-4 text-white">Recent Entries</h3>
+        <h3 className="text-lg font-semibold mb-4 text-white">Недавние записи</h3>
         <div className="flex-1 flex flex-col gap-3">
         {daysEntries.length === 0 ? (
           <div className="text-center py-8 bg-white/5 rounded-2xl border border-white/10 border-dashed">
-            <p className="text-slate-400 text-sm">No food logged for this day.</p>
+            <p className="text-slate-400 text-sm">В этот день не было записей о еде.</p>
           </div>
         ) : (
           daysEntries.map((entry) => (
@@ -409,18 +414,18 @@ function DiaryTab({ entries, setEntries }: { entries: DiaryEntry[], setEntries: 
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-bold text-white truncate">{entry.nutrition.foodName}</div>
                 <div className="text-[10px] text-slate-400 uppercase mt-1">
-                   {entry.nutrition.protein}g P • {entry.nutrition.carbs}g C • {entry.nutrition.fat}g F
+                   {entry.nutrition.protein}г Б • {entry.nutrition.carbs}г У • {entry.nutrition.fat}г Ж
                 </div>
               </div>
 
               <div className="flex flex-col items-end gap-1 shrink-0">
-                <div className="text-sm font-bold text-emerald-400">{entry.nutrition.calories} kcal</div>
+                <div className="text-sm font-bold text-emerald-400">{entry.nutrition.calories} ккал</div>
                 <button
                   onClick={() => deleteEntry(entry.id)}
                   className="text-[10px] font-bold text-slate-500 hover:text-rose-400 transition"
-                  aria-label="Delete entry"
+                  aria-label="Удалить запись"
                 >
-                  REMOVE
+                  УДАЛИТЬ
                 </button>
               </div>
             </motion.div>
