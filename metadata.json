@@ -1,0 +1,6 @@
+{
+  "name": "AI Calorie Tracker",
+  "description": "Upload a photo of food to get estimated calories and macros using AI. Features a daily food diary.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
